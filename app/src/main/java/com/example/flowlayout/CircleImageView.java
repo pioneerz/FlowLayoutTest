@@ -14,6 +14,7 @@ import android.graphics.ComposeShader;
 import android.graphics.CornerPathEffect;
 import android.graphics.DashPathEffect;
 import android.graphics.DiscretePathEffect;
+import android.graphics.EmbossMaskFilter;
 import android.graphics.LightingColorFilter;
 import android.graphics.LinearGradient;
 import android.graphics.MaskFilter;
@@ -29,6 +30,7 @@ import android.graphics.RectF;
 import android.graphics.Shader;
 import android.graphics.SumPathEffect;
 import android.graphics.SweepGradient;
+import android.graphics.Typeface;
 import android.graphics.Xfermode;
 import android.graphics.drawable.BitmapDrawable;
 import android.util.AttributeSet;
@@ -123,6 +125,7 @@ public class CircleImageView extends View {
         mMaskPaint.setStyle(Paint.Style.FILL);
 
         mMaskFilter = new BlurMaskFilter(50, BlurMaskFilter.Blur.INNER);
+//        mMaskFilter = new EmbossMaskFilter(new float[]{0, 1, 1}, 0.2f, 8, 10);
         mMaskPaint.setMaskFilter(mMaskFilter);
 
         mMaskBitmap = BitmapFactory.decodeResource(getResources(), R.mipmap.download);
@@ -172,6 +175,18 @@ public class CircleImageView extends View {
         mTextPaint.setColor(Color.BLUE);
         mTextPaint.setStyle(Paint.Style.FILL);
         mTextPaint.setShadowLayer(10, 0, 0, Color.RED);
+        mTextPaint.setLetterSpacing(0.2f);
+        // 文本下划线
+        mTextPaint.setUnderlineText(true);
+        // 文本删除线
+        mTextPaint.setStrikeThruText(true);
+        // 设置字体
+        mTextPaint.setTypeface(Typeface.SERIF);
+        // 设置倾斜度 负数为右倾，整数为左倾，默认是0
+        mTextPaint.setTextSkewX(-0.25f);
+        // 增加亚像素，增加清晰度
+        mTextPaint.setSubpixelText(true);
+//        mTextPaint.breakText(mTextStr, true, 30, new float[]{5f, 10f});
 
         mRect = new Rect();
     }
@@ -282,7 +297,7 @@ public class CircleImageView extends View {
         mWidth = screenWidth / 2 - mRect.width() / 2;
 
         // TODO 将兹定于view添加到scrollview中时，scrollview初始化的高度为0，所以不能显示自定义view，所以我们需要自己设定高度.
-        setMeasuredDimension(DensityUtils.screenWidth(mContext), 1500);
+        setMeasuredDimension(DensityUtils.screenWidth(mContext), 1400);
     }
 
     /**
