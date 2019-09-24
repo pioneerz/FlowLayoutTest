@@ -2,25 +2,34 @@ package com.example.flowlayout;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.BitmapShader;
+import android.graphics.BlurMaskFilter;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.ColorFilter;
 import android.graphics.ColorMatrixColorFilter;
 import android.graphics.ComposePathEffect;
+import android.graphics.ComposeShader;
 import android.graphics.CornerPathEffect;
 import android.graphics.DashPathEffect;
 import android.graphics.DiscretePathEffect;
 import android.graphics.LightingColorFilter;
 import android.graphics.LinearGradient;
+import android.graphics.MaskFilter;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PathDashPathEffect;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
+import android.graphics.PorterDuffXfermode;
+import android.graphics.RadialGradient;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Shader;
 import android.graphics.SumPathEffect;
+import android.graphics.SweepGradient;
+import android.graphics.Xfermode;
 import android.graphics.drawable.BitmapDrawable;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -62,6 +71,14 @@ public class CircleImageView extends View {
     private Paint mShaderPaint;
     private Shader mShader;
 
+    private Paint mXfermodePaint;
+    private Xfermode mXfermode;
+    private Bitmap mBeauBitmap;
+
+    private MaskFilter mMaskFilter;
+    private Paint mMaskPaint;
+    private Bitmap mMaskBitmap;
+
     public CircleImageView(Context context) {
         super(context);
         initPaint(context);
@@ -94,18 +111,58 @@ public class CircleImageView extends View {
         initText();
 
         initShader();
+
+        initXfermode();
+
+        initMaskFilter();
+    }
+
+    private void initMaskFilter() {
+        mMaskPaint = new Paint();
+        mMaskPaint.setAntiAlias(true);
+        mMaskPaint.setStyle(Paint.Style.FILL);
+
+        mMaskFilter = new BlurMaskFilter(50, BlurMaskFilter.Blur.INNER);
+        mMaskPaint.setMaskFilter(mMaskFilter);
+
+        mMaskBitmap = BitmapFactory.decodeResource(getResources(), R.mipmap.download);
+    }
+
+    private void initXfermode() {
+        mXfermodePaint = new Paint();
+        mXfermodePaint.setAntiAlias(true);
+
+        mXfermode = new PorterDuffXfermode(PorterDuff.Mode.ADD);
+
+        mBeauBitmap = BitmapFactory.decodeResource(mContext.getResources(), R.mipmap.ic_launcher_round);
     }
 
     private void initShader() {
         mShaderPaint = new Paint();
         mShaderPaint.setAntiAlias(true);
         mShaderPaint.setStyle(Paint.Style.FILL);
+//        mShaderPaint.setStrokeWidth(2);
 
 //        mShader = new LinearGradient(100, 720, 500, 720, Color.RED, Color.BLUE, Shader.TileMode.CLAMP);
-        mShader = new LinearGradient(200, 720, 400, 920,
-                new int[]{Color.RED, Color.GREEN, Color.BLUE},
-                null, Shader.TileMode.REPEAT);
+//        mShader = new LinearGradient(200, 720, 400, 920,
+//                new int[]{Color.RED, Color.GREEN, Color.BLUE},
+//                null, Shader.TileMode.REPEAT);
+//        mShader = new RadialGradient(300, 820, 100, Color.RED, Color.BLUE, Shader.TileMode.REPEAT);
+
+//        mShader = new SweepGradient(300, 820, Color.RED, Color.BLUE);
+//        mShader = new SweepGradient(300, 820, new int[]{Color.RED, Color.YELLOW, Color.BLUE}, null);
+
+        // tile端点之外的着色规则,注意坐标系
+        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.mipmap.download);
+//        mShader = new BitmapShader(bitmap, Shader.TileMode.MIRROR, Shader.TileMode.MIRROR);
+
+        // 需要关闭硬件加速
+        Bitmap bitmap1 = BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher_round);
+        Shader shader1 = new BitmapShader(bitmap, Shader.TileMode.MIRROR, Shader.TileMode.MIRROR);
+        Shader shader2 = new BitmapShader(bitmap1, Shader.TileMode.MIRROR, Shader.TileMode.MIRROR);
+        mShader = new ComposeShader(shader1, shader2, PorterDuff.Mode.OVERLAY);
         mShaderPaint.setShader(mShader);
+
     }
 
     private void initText() {
@@ -225,7 +282,7 @@ public class CircleImageView extends View {
         mWidth = screenWidth / 2 - mRect.width() / 2;
 
         // TODO 将兹定于view添加到scrollview中时，scrollview初始化的高度为0，所以不能显示自定义view，所以我们需要自己设定高度.
-        setMeasuredDimension(DensityUtils.screenWidth(mContext), 950);
+        setMeasuredDimension(DensityUtils.screenWidth(mContext), 1500);
     }
 
     /**
@@ -258,12 +315,29 @@ public class CircleImageView extends View {
         mBitmapColorFilterPaint.setColorFilter(new LightingColorFilter(0xffff00, 0x0));
         canvas.drawBitmap(mBitmap, 550, 410, mBitmapColorFilterPaint);
 
-//        mBitmapColorFilterPaint.setColorFilter(new PorterDuffColorFilter(0x00ffff, PorterDuff.Mode.SRC_OUT));
+//        mBitmapColorFilterPaint.setColorFilter(new PorterDuffColorFilter(0x, PorterDuff.Mode.DST_IN));
 //        canvas.drawBitmap(mBitmap, 10, 580, mBitmapColorFilterPaint);
 
         canvas.drawText(mTextStr, mWidth, 650, mTextPaint);
 
-        canvas.drawRoundRect(100, 720, 500, 920, 20, 20, mShaderPaint);
+        // 绘制BitmapShader时，需要考虑坐标系的问题
+        canvas.save();
+        canvas.translate(100, 720);
+        canvas.drawRoundRect(0, 0, 500, 200, 20, 20, mShaderPaint);
+        canvas.restore();
+
+        canvas.save();
+        canvas.translate(100, 960);
+        canvas.drawBitmap(mBitmap, 0, 0, mXfermodePaint); // dest
+        mXfermodePaint.setXfermode(mXfermode);
+        canvas.drawBitmap(mBeauBitmap, 0, 0, mXfermodePaint); // source
+        mXfermodePaint.setXfermode(null);
+        canvas.restore();
+
+        canvas.save();
+        canvas.translate(100, 1160);
+        canvas.drawBitmap(mMaskBitmap, 0, 0, mMaskPaint);
+        canvas.restore();
 
     }
 }
