@@ -41,11 +41,6 @@ public class FlowLayout extends ViewGroup {
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-
-        RuntimeException re = new RuntimeException();
-        re.fillInStackTrace();
-        Log.e("zangdianbin", "onMeasure", re);
-
         // TODO onMeasure会调用两次，所以有些计算最好放在onLayout中。
 
         int widthMode = MeasureSpec.getMode(widthMeasureSpec);
@@ -121,11 +116,6 @@ public class FlowLayout extends ViewGroup {
 
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
-
-        RuntimeException re = new RuntimeException();
-        re.fillInStackTrace();
-        Log.e("zangdianbin", "onLayout", re);
-
         int left, top, right, bottom;
         int curLeft = 0;
         int curTop = 0;
@@ -159,19 +149,10 @@ public class FlowLayout extends ViewGroup {
     @Override
     protected void onDraw(Canvas canvas) {
 //        super.onDraw(canvas);
-
-        RuntimeException re = new RuntimeException();
-        re.fillInStackTrace();
-        Log.e("zangdianbin", "onDraw", re);
-
-
-        canvas.drawArc(new RectF(0,0,200,200), 0,120, true, new Paint());
-
     }
 
     @Override
     protected void dispatchDraw(Canvas canvas) {
         super.dispatchDraw(canvas);
-        Log.e("zangdianbin", "dispatchDraw");
     }
 }
