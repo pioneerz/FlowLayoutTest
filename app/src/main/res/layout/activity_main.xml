@@ -11,10 +11,10 @@
         <com.example.flowlayout.LinearGradientView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="欢迎来到卓易博色科技有限公司"
+            android:background="#000000"
+            android:text="欢迎来到XXX科技有限公司的XXX部门"
             android:textColor="#212121"
-            android:textSize="30dp"
-            android:background="#000000"/>
+            android:textSize="30dp" />
 
         <com.example.flowlayout.ShaderView
             android:layout_width="match_parent"
